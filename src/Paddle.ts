@@ -9,7 +9,7 @@ export class Paddle {
     renderingContext: CanvasRenderingContext2D,
     x?: number,
     y?: number,
-    public width: number = 75,
+    public width: number = 150,
     public height: number = 10
   ) {
     this.ctx = renderingContext;
@@ -27,7 +27,7 @@ export class Paddle {
 
   draw() {
     this.ctx.beginPath();
-    this.ctx.rect(this.x, this.y, this.width, this.height);
+    this.ctx.rect(this.x, this.y - 10, this.width, this.height);
     this.ctx.fillStyle = "#0095DD";
     this.ctx.fill();
     this.ctx.closePath();

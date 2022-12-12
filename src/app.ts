@@ -5,14 +5,23 @@ import { Paddle } from "./Paddle";
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d");
 
+let alive = true;
+let lives = 3;
+let score = 0;
+const brickRowCount = 3;
+const brickColumnCount = 5;
+
 export const HEIGHT = canvas.height;
 export const WIDTH = canvas.width;
+
+let x = canvas.width / 2;
+let y = canvas.height - 30;
 
 let dx = 1.5;
 let dy = 2;
 
-const ball = new Ball(ctx);
-const paddle = new Paddle(ctx);
+const ball = new Ball(ctx, x, y);
+const paddle = new Paddle(ctx, (canvas.width - 150) / 2);
 let bricks = generateBricks();
 
 canvas.addEventListener("mousemove", (e) => {
@@ -31,6 +40,8 @@ function render() {
   ball.y += dy;
 
   paddle.draw();
+  drawLives();
+  drawScore();
 
   bricks = bricks.filter((x) => x.isHitted == false);
   for (const brick of bricks) {
@@ -41,7 +52,9 @@ function render() {
 
   detectCollision(ball);
 
-  requestAnimationFrame(render);
+  if (alive) {
+    requestAnimationFrame(render);
+  }
 }
 
 function checkIsBallColliding(ball: Ball) {
@@ -51,28 +64,44 @@ function checkIsBallColliding(ball: Ball) {
 
   if (ball.y + dy < ball.radius) {
     dy = -dy;
-  } else if (ball.y + dy > HEIGHT - ball.radius) {
+  } else if (ball.y + dy > HEIGHT - ball.radius - paddle.height - 10) {
     if (ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
       dy = -dy;
     } else {
-      alert("Game Over");
-      document.location.reload();
+      if (ball.y + dy > HEIGHT - ball.radius) {
+        lives--;
+        if (!lives) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.font = '24px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
+          alive = false;
+        } else {
+          ball.x = canvas.width / 2;
+          ball.y = canvas.height - 30;
+          dx = 2;
+          dy = -2;
+          paddle.x = (canvas.width - paddle.width) / 2;
+        }
+      }
     }
   }
 }
 
 function generateBricks() {
   let bricks: Brick[] = [];
-  let brickWidth = 75;
-  let brickHeight = 20;
+  const brickWidth = 175;
+  const brickHeight = 20;
 
-  let brickPadding = 10;
-  let brickOffset = 30;
+  const brickPadding = 10;
+  const brickOffsetTop = 70;
+  const brickOffsetLeft = 30;
 
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 5; col++) {
-      let brickX = col * (brickWidth + brickPadding) + brickOffset;
-      let brickY = row * (brickHeight + brickPadding) + brickOffset;
+  for (let row = 0; row < brickRowCount; row++) {
+    for (let col = 0; col < brickColumnCount; col++) {
+      let brickX = col * (brickWidth + brickPadding) + brickOffsetLeft;
+      let brickY = row * (brickHeight + brickPadding) + brickOffsetTop;
 
       bricks.push(new Brick(ctx, brickX, brickY, 75, 20));
     }
@@ -86,49 +115,32 @@ function detectCollision(ball: Ball) {
     if (
       ball.x > brick.x &&
       ball.x < brick.x + brick.width &&
-      ball.y > brick.y &&
-      ball.y < brick.y + brick.height
+      ball.y + ball.radius > brick.y &&
+      ball.y - ball.radius < brick.y + brick.height
     ) {
       dy = -dy;
       brick.isHitted = true;
+      score++;
+      if (score === brickColumnCount * brickRowCount) {
+        alive = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = '24px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('You WIN', canvas.width / 2, canvas.height / 2);
+      }
     }
   }
 }
 
-function grid() {
-  const minorGridStyle = "rgba(0, 0, 0, 0.2)";
-  const majorGridStyle = "rgba(0, 0, 0, 0.5)";
-
-  ctx.save();
-  ctx.lineWidth = 1;
-
-  for (let x = 20; x < WIDTH; x += 20) {
-    ctx.strokeStyle = x % 100 == 0 ? majorGridStyle : minorGridStyle;
-
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, HEIGHT);
-    ctx.stroke();
-    ctx.closePath();
-  }
-
-  for (let y = 20; y < HEIGHT; y += 20) {
-    ctx.strokeStyle = y % 100 == 0 ? majorGridStyle : minorGridStyle;
-
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(WIDTH, y);
-    ctx.stroke();
-    ctx.closePath();
-  }
-
-  ctx.restore();
+function drawScore() {
+  ctx.font = '16px Arial';
+  ctx.fillStyle = '#0095DD';
+  ctx.fillText(`Score: ${score}`, 8, 20);
 }
 
-function drawBall() {
-  ctx.beginPath();
-  ctx.arc(50, 50, 10, 0, 2 * Math.PI);
-  ctx.fillStyle = "#0095DD";
-  ctx.fill();
-  ctx.closePath();
+function drawLives() {
+  ctx.font = '16px Arial';
+  ctx.fillStyle = '#0095DD';
+  ctx.fillText(`Lives: ${lives}`, canvas.width - 65, 20);
 }
