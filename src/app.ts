@@ -5,6 +5,7 @@ const HEIGHT = canvas.height;
 const WIDTH = canvas.width;
 
 grid();
+drawBall();
 
 function grid() {
   const minorGridStyle = "rgba(0, 0, 0, 0.2)";
@@ -34,4 +35,12 @@ function grid() {
   }
 
   ctx.restore();
+}
+
+function drawBall() {
+  ctx.beginPath();
+  ctx.arc(50, 50, 10, 0, 2 * Math.PI);
+  ctx.fillStyle = '#0095DD';
+  ctx.fill();
+  ctx.closePath();
 }
