@@ -32,8 +32,8 @@ const scoreboard = new Scoreboard(ctx, { score: 0, lives: 3 });
 let bricks = generateBricks(ctx, level);
 
 document.addEventListener("mousemove", mouseMoveHandler);
-document.addEventListener('keydown', keyDownHandler);
-document.addEventListener('keyup', keyUpHandler);
+document.addEventListener("keydown", keyDownHandler);
+document.addEventListener("keyup", keyUpHandler);
 
 render();
 
@@ -46,7 +46,7 @@ function render() {
   if (rightPressed) {
     paddle.x = Math.min(paddle.x + 5, canvas.width - paddle.width);
   } else if (leftPressed) {
-    paddle.x = Math.max(paddle.x - 5, 0);;
+    paddle.x = Math.max(paddle.x - 5, 0);
   }
 
   ball.checkForCollisionWithPerimeter();
@@ -76,9 +76,11 @@ function render() {
         scoreboard.score = 0;
         ball.x = canvas.width / 2;
         ball.y = canvas.height - 30;
-        (vel.x = speed),
-          (vel.y = speed * 1.5),
-          (bricks = generateBricks(ctx, level));
+        vel.x = speed;
+        vel.y = speed * 1.5;
+        paddle.x = (canvas.width - paddle.width) / 2;
+        bricks = generateBricks(ctx, level);
+
         render();
       }, 1500);
     }
@@ -91,8 +93,28 @@ function render() {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2);
+        ctx.fillRect(canvas.width / 2 - 100, canvas.height / 2 + 50, 200, 50);
+        ctx.font = "24px Arial";
+        ctx.fillStyle = "black";
+        ctx.fillText("Play Again", canvas.width / 2, canvas.height / 2 + 75);
         canvas.style.cursor = "default";
         alive = false;
+
+        canvas.addEventListener("click", (e) => {
+          const positions = {
+            x: e.offsetX,
+            y: e.offsetY,
+          };
+
+          if (
+            positions.x >= canvas.width / 2 - 100 &&
+            positions.x < canvas.width / 2 - 100 + 200 &&
+            positions.y >= canvas.height / 2 + 50 &&
+            positions.y < canvas.height / 2 + 50 + 50
+          ) {
+            restartGame();
+          }
+        });
       } else {
         ball.x = canvas.width / 2;
         ball.y = canvas.height - 30;
@@ -108,7 +130,7 @@ function render() {
   bricks = bricks.filter((x) => x.isHitted == false);
 
   for (const brick of bricks) {
-      brick.draw();
+    brick.draw();
   }
 
   if (alive) {
@@ -128,17 +150,31 @@ export function mouseMoveHandler(e: MouseEvent) {
 }
 
 function keyDownHandler(e: KeyboardEvent) {
-  if (e.key == 'Right' || e.key == 'ArrowRight') {
-      rightPressed = true;
-  } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
-      leftPressed = true;
+  if (e.key == "Right" || e.key == "ArrowRight") {
+    rightPressed = true;
+  } else if (e.key == "Left" || e.key == "ArrowLeft") {
+    leftPressed = true;
   }
 }
 
 function keyUpHandler(e: KeyboardEvent) {
-  if (e.key == 'Right' || e.key == 'ArrowRight') {
-      rightPressed = false;
-  } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
-      leftPressed = false;
+  if (e.key == "Right" || e.key == "ArrowRight") {
+    rightPressed = false;
+  } else if (e.key == "Left" || e.key == "ArrowLeft") {
+    leftPressed = false;
   }
+}
+
+function restartGame() {
+  alive = true;
+  scoreboard.lives = 3;
+  scoreboard.score = 0;
+  ball.x = canvas.width / 2;
+  ball.y = canvas.height - 30;
+  vel.x = speed;
+  vel.y = speed * 1.5;
+  paddle.x = (canvas.width - paddle.width) / 2;
+  bricks = generateBricks(ctx, level);
+
+  render();
 }
