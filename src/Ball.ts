@@ -27,12 +27,6 @@ export class Ball {
     this.y += this.vel.y;
   }
 
-  checkCollision(paddle: Paddle, bricks: Brick[]) {
-    this.checkForCollisionWithPerimeter();
-    this.checkForCollisionWithPaddle(paddle);
-    this.checkForCollisionWithBricks(bricks);
-  }
-
   checkForCollisionWithPerimeter() {
     if (
       this.x + this.vel.x > WIDTH - this.radius ||
@@ -46,28 +40,55 @@ export class Ball {
     }
   }
 
-  checkForCollisionWithPaddle(paddle: Paddle) {
-    if (this.y + this.vel.y > HEIGHT - this.radius - paddle.height - 10) {
-      if (this.x > paddle.x && this.x < paddle.x + paddle.width) {
-        this.vel.y = -this.vel.y;
-        let centerOfPaddleX = paddle.x + paddle.width / 2;
-        let ballDistFromPaddleCenterX = this.x - centerOfPaddleX;
-        this.vel.x = ballDistFromPaddleCenterX * 0.05;
+  collide(bricks: Brick);
+  collide(paddle: Paddle);
+  collide(gameObject: Paddle | Brick) {
+    if (gameObject instanceof Paddle) {
+      this.vel.y = -this.vel.y;
+      let centerOfPaddleX = gameObject.x + gameObject.width / 2;
+      let ballDistFromPaddleCenterX = this.x - centerOfPaddleX;
+      this.vel.x = ballDistFromPaddleCenterX * 0.05;
+    } else {
+      this.vel.y = -this.vel.y;
+      if (gameObject.killable == true) {
+        gameObject.density--;
+        if (gameObject.density == 0) {
+          gameObject.isHitted = true;
+        }
+      }
+
+      if (Math.abs(this.vel.y) < 10) {
+        this.vel.y = this.vel.y * 1.05;
+      }
+      if (Math.abs(this.vel.x) < 10) {
+        this.vel.x = this.vel.x * 1.05;
       }
     }
   }
 
-  checkForCollisionWithBricks(bricks: Brick[]) {
-    for (const brick of bricks) {
+  indexOfCollidedBrick(bricks: Brick[]) {
+    for (let i = 0; i < bricks.length; i++) {
+      const brick = bricks[i];
       if (
         this.x > brick.x &&
         this.x < brick.x + brick.width &&
         this.y + this.radius > brick.y &&
         this.y - this.radius < brick.y + brick.height
       ) {
-        this.vel.y = -this.vel.y;
-        brick.isHitted = true;
+        return i;
       }
     }
+
+    return -1;
+  }
+
+  hasCollidedWithPaddle(paddle: Paddle) {
+    if (this.y + this.vel.y > HEIGHT - this.radius - paddle.height - 10) {
+      if (this.x > paddle.x && this.x < paddle.x + paddle.width) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
