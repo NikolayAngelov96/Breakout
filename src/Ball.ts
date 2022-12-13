@@ -3,16 +3,13 @@ import { Brick } from "./Brick";
 import { Paddle } from "./Paddle";
 
 export class Ball {
-  private ctx: CanvasRenderingContext2D;
   constructor(
-    renderingCtx: CanvasRenderingContext2D,
+    private ctx: CanvasRenderingContext2D,
     public x: number,
     public y: number,
     public vel: { x: number; y: number },
     public radius: number = 10
-  ) {
-    this.ctx = renderingCtx;
-  }
+  ) {}
 
   draw() {
     this.ctx.beginPath();
@@ -50,11 +47,9 @@ export class Ball {
       this.vel.x = ballDistFromPaddleCenterX * 0.05;
     } else {
       this.vel.y = -this.vel.y;
-      if (gameObject.killable == true) {
-        gameObject.density--;
-        if (gameObject.density == 0) {
-          gameObject.isHitted = true;
-        }
+      gameObject.density--;
+      if (gameObject.density == 0) {
+        gameObject.isHitted = true;
       }
 
       if (Math.abs(this.vel.y) < 10) {

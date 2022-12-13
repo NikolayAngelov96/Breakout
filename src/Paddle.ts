@@ -1,18 +1,16 @@
 import { HEIGHT, WIDTH } from "./app";
 
 export class Paddle {
-  private ctx: CanvasRenderingContext2D;
   public x: number;
   public y: number;
 
   constructor(
-    renderingContext: CanvasRenderingContext2D,
+    private ctx: CanvasRenderingContext2D,
     x?: number,
     y?: number,
     public width: number = 150,
     public height: number = 10
   ) {
-    this.ctx = renderingContext;
     if (x == undefined) {
       this.x = (WIDTH - this.width) / 2;
     } else {
