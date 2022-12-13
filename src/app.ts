@@ -1,13 +1,14 @@
 import { Ball } from "./Ball";
 import { Brick } from "./Brick";
 import { Paddle } from "./Paddle";
+import { Scoreboard } from "./Scoreboard";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d");
 
+canvas.style.cursor = 'none';
+
 let alive = true;
-let lives = 3;
-let score = 0;
 const brickRowCount = 3;
 const brickColumnCount = 5;
 
@@ -25,11 +26,15 @@ const vel = {
 
 const ball = new Ball(ctx, x, y, vel);
 const paddle = new Paddle(ctx, (canvas.width - 150) / 2);
+const scoreboard = new Scoreboard(ctx, {score: 0, lives: 3});
+
 let bricks = generateBricks();
 
-canvas.addEventListener("mousemove", (e) => {
-  if (e.offsetX > 0 && e.offsetX < WIDTH) {
-    paddle.move(e.offsetX);
+document.addEventListener("mousemove", (e) => {
+  const relativeX = e.clientX - canvas.offsetLeft;
+
+  if (relativeX > paddle.width / 2 && relativeX < canvas.width - paddle.width / 2) {
+      paddle.x = relativeX - paddle.width / 2;
   }
 });
 
@@ -42,8 +47,8 @@ function render() {
   ball.move();
 
   paddle.draw();
-  drawLives();
-  drawScore();
+
+  scoreboard.showStats();
 
   bricks = bricks.filter((x) => x.isHitted == false);
   for (const brick of bricks) {
@@ -74,13 +79,14 @@ function checkIsBallColliding(ball: Ball) {
       vel.x = ballDistFromPaddleCenterX * 0.05;
     } else {
       if (ball.y + vel.y > HEIGHT - ball.radius) {
-        lives--;
-        if (!lives) {
+        scoreboard.loseLife();
+        if (!scoreboard.lives) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.font = "24px Arial";
+          ctx.font = "48px Arial";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2);
+          canvas.style.cursor = 'default';
           alive = false;
         } else {
           ball.x = canvas.width / 2;
@@ -99,16 +105,22 @@ function generateBricks() {
   const brickWidth = 175;
   const brickHeight = 20;
 
-  const brickPadding = 10;
+  const brickPadding = 8;
   const brickOffsetTop = 70;
   const brickOffsetLeft = 30;
 
   for (let row = 0; row < brickRowCount; row++) {
     for (let col = 0; col < brickColumnCount; col++) {
-      let brickX = col * (brickWidth + brickPadding) + brickOffsetLeft;
-      let brickY = row * (brickHeight + brickPadding) + brickOffsetTop;
-
-      bricks.push(new Brick(ctx, brickX, brickY, 75, 20));
+      let brickX = (col * (brickWidth + brickPadding)) + brickOffsetLeft;
+      let brickY = (row * (brickHeight + brickPadding)) + brickOffsetTop;
+      if (row == 0) {
+        bricks.push(new Brick(ctx, brickX, brickY, brickWidth, brickHeight, 3));
+      } else if (row == 1) {
+        bricks.push(new Brick(ctx, brickX, brickY, brickWidth, brickHeight, 2));
+      } else if (row == 2) {
+        bricks.push(new Brick(ctx, brickX, brickY, brickWidth, brickHeight, 1));
+      }
+      
     }
   }
 
@@ -124,28 +136,24 @@ function checkCollisionWithBricks(ball: Ball) {
       ball.y - ball.radius < brick.y + brick.height
     ) {
       vel.y = -vel.y;
-      brick.isHitted = true;
-      score++;
-      if (score === brickColumnCount * brickRowCount) {
+
+      brick.density--;
+      if (brick.density == 0) {
+        brick.isHitted = true;
+      }
+
+      scoreboard.incrementScore();
+
+      // if (scoreboard.score === brickColumnCount * brickRowCount) {
+      if (scoreboard.score === 30) {
         alive = false;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.font = "24px Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("You WIN", canvas.width / 2, canvas.height / 2);
+        canvas.style.cursor = 'default';
       }
     }
   }
-}
-
-function drawScore() {
-  ctx.font = "16px Arial";
-  ctx.fillStyle = "#0095DD";
-  ctx.fillText(`Score: ${score}`, 8, 20);
-}
-
-function drawLives() {
-  ctx.font = "16px Arial";
-  ctx.fillStyle = "#0095DD";
-  ctx.fillText(`Lives: ${lives}`, canvas.width - 65, 20);
 }

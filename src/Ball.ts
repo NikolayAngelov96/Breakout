@@ -17,7 +17,7 @@ export class Ball {
   draw() {
     this.ctx.beginPath();
     this.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-    this.ctx.fillStyle = "#0095DD";
+    this.ctx.fillStyle = "white";
     this.ctx.fill();
     this.ctx.closePath();
   }

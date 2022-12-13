@@ -28,7 +28,13 @@ export class Paddle {
   draw() {
     this.ctx.beginPath();
     this.ctx.rect(this.x, this.y - 10, this.width, this.height);
-    this.ctx.fillStyle = "#0095DD";
+    this.ctx.fillStyle = "red";
+    this.ctx.fill();
+    this.ctx.closePath();
+
+    this.ctx.beginPath();
+    this.ctx.rect(this.x + 20, this.y - 10, this.width - 41, this.height);
+    this.ctx.fillStyle = "white";
     this.ctx.fill();
     this.ctx.closePath();
   }
