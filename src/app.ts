@@ -1,5 +1,5 @@
 import { Ball } from "./Ball";
-import { Brick } from "./Brick";
+import { generateBricks, levelScore } from "./levels";
 import { Paddle } from "./Paddle";
 import { Scoreboard } from "./Scoreboard";
 
@@ -9,8 +9,8 @@ const ctx = canvas.getContext("2d");
 canvas.style.cursor = 'none';
 
 let alive = true;
-const brickRowCount = 3;
-const brickColumnCount = 5;
+
+let level = 1;
 
 export const HEIGHT = canvas.height;
 export const WIDTH = canvas.width;
@@ -28,7 +28,7 @@ const ball = new Ball(ctx, x, y, vel);
 const paddle = new Paddle(ctx, (canvas.width - 150) / 2);
 const scoreboard = new Scoreboard(ctx, {score: 0, lives: 3});
 
-let bricks = generateBricks();
+let bricks = generateBricks(ctx, level);
 
 document.addEventListener("mousemove", (e) => {
   const relativeX = e.clientX - canvas.offsetLeft;
@@ -51,6 +51,7 @@ function render() {
   scoreboard.showStats();
 
   bricks = bricks.filter((x) => x.isHitted == false);
+
   for (const brick of bricks) {
     if (brick.isHitted == false) {
       brick.draw();
@@ -100,33 +101,6 @@ function checkIsBallColliding(ball: Ball) {
   }
 }
 
-function generateBricks() {
-  let bricks: Brick[] = [];
-  const brickWidth = 175;
-  const brickHeight = 20;
-
-  const brickPadding = 8;
-  const brickOffsetTop = 70;
-  const brickOffsetLeft = 30;
-
-  for (let row = 0; row < brickRowCount; row++) {
-    for (let col = 0; col < brickColumnCount; col++) {
-      let brickX = (col * (brickWidth + brickPadding)) + brickOffsetLeft;
-      let brickY = (row * (brickHeight + brickPadding)) + brickOffsetTop;
-      if (row == 0) {
-        bricks.push(new Brick(ctx, brickX, brickY, brickWidth, brickHeight, 3));
-      } else if (row == 1) {
-        bricks.push(new Brick(ctx, brickX, brickY, brickWidth, brickHeight, 2));
-      } else if (row == 2) {
-        bricks.push(new Brick(ctx, brickX, brickY, brickWidth, brickHeight, 1));
-      }
-      
-    }
-  }
-
-  return bricks;
-}
-
 function checkCollisionWithBricks(ball: Ball) {
   for (const brick of bricks) {
     if (
@@ -137,22 +111,40 @@ function checkCollisionWithBricks(ball: Ball) {
     ) {
       vel.y = -vel.y;
 
-      brick.density--;
-      if (brick.density == 0) {
-        brick.isHitted = true;
+      if (brick.killable) {
+        scoreboard.incrementScore();
+        brick.density--;
+        if (brick.density == 0) {
+          brick.isHitted = true;
+        }
       }
 
-      scoreboard.incrementScore();
+      if (Math.abs(vel.y) < 10) {
+        vel.y = vel.y * 1.05;
+      }
+      if (Math.abs(vel.x) < 10) {
+        vel.x = vel.x * 1.05;
+      }
 
-      // if (scoreboard.score === brickColumnCount * brickRowCount) {
-      if (scoreboard.score === 30) {
+      if (scoreboard.score === levelScore[level]) {
         alive = false;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.font = "24px Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("You WIN", canvas.width / 2, canvas.height / 2);
-        canvas.style.cursor = 'default';
+        // canvas.style.cursor = 'default';
+        level++;
+        setTimeout(() => {
+          alive = true;
+          scoreboard.score = 0;
+          ball.x = canvas.width / 2;
+          ball.y = canvas.height - 30;
+          vel.x = speed,
+          vel.y = speed * 1.5,
+          bricks = generateBricks(ctx, level);
+          render();
+        }, 1500)
       }
     }
   }
