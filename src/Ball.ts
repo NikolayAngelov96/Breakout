@@ -17,6 +17,8 @@ export class Ball {
     this.ctx.fillStyle = "white";
     this.ctx.fill();
     this.ctx.closePath();
+
+    this.move();
   }
 
   move() {
