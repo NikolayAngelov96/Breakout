@@ -72,12 +72,9 @@ export class Ball {
         this.y + this.radius * 2 > brick.y &&
         this.y - this.radius / 2 < brick.y + brick.height
       ) {
-        if (        
-          this.y  > brick.y + this.vel.y
-          && this.y < brick.y + brick.height + this.vel.y 
-        ) {
+        if (this.isSideColiding(brick)) {
             this.vel.x = -this.vel.x;
-          }
+        }
 
         return i;
       }
@@ -94,5 +91,9 @@ export class Ball {
     }
 
     return false;
+  }
+
+  private isSideColiding(brick) {
+    return this.y  > brick.y + this.vel.y && this.y < brick.y + brick.height + this.vel.y;
   }
 }
