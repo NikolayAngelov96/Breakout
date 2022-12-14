@@ -73,10 +73,10 @@ function render() {
         setTimeout(() => {
           alive = true;
           scoreboard.score = 0;
-          ball = new Ball(ctx, x, y, {x: speed, y: speed * 1.5});
+          ball = new Ball(ctx, x, y, { x: speed, y: speed * 1.5 });
           paddle.x = (WIDTH - paddle.width) / 2;
           bricks = generateBricks(ctx, level);
-          
+
           render();
         }, 3000);
       } else {
@@ -91,19 +91,7 @@ function render() {
         canvasElement.style.cursor = "default";
         alive = false;
 
-        canvasElement.addEventListener("click", (e) => {
-          const positions = {
-            x: e.offsetX,
-            y: e.offsetY,
-          };
-
-          if (
-            positions.x >= WIDTH / 2 - 100 && positions.x < WIDTH / 2 - 100 + 200 &&
-            positions.y >= HEIGHT / 2 + 50 && positions.y < HEIGHT / 2 + 50 + 50
-          ) {
-            restartGame();
-          }
-        });
+        canvasElement.addEventListener("click", handleGameRestartClick);
       } else {
         ball = new Ball(ctx, x, y, vel);
         paddle.x = (WIDTH - paddle.width) / 2;
@@ -127,10 +115,7 @@ function render() {
 export function mouseMoveHandler(e: MouseEvent) {
   const relativeX = e.clientX - canvasElement.offsetLeft;
 
-  if (
-    relativeX > paddle.width / 2 &&
-    relativeX < WIDTH - paddle.width / 2
-  ) {
+  if (relativeX > paddle.width / 2 && relativeX < WIDTH - paddle.width / 2) {
     paddle.x = relativeX - paddle.width / 2;
   }
 }
@@ -151,14 +136,31 @@ function keyUpHandler(e: KeyboardEvent) {
   }
 }
 
+function handleGameRestartClick(e: MouseEvent) {
+  const positions = {
+    x: e.offsetX,
+    y: e.offsetY,
+  };
+
+  if (
+    positions.x >= WIDTH / 2 - 100 &&
+    positions.x < WIDTH / 2 - 100 + 200 &&
+    positions.y >= HEIGHT / 2 + 50 &&
+    positions.y < HEIGHT / 2 + 50 + 50
+  ) {
+    restartGame();
+    canvasElement.removeEventListener("click", handleGameRestartClick);
+  }
+}
+
 function restartGame() {
   alive = true;
   scoreboard.lives = 3;
   scoreboard.score = 0;
-  ball = new Ball(ctx, x, y, {x: speed, y: speed * 1.5});
+  ball = new Ball(ctx, x, y, { x: speed, y: speed * 1.5 });
   paddle.x = (WIDTH - paddle.width) / 2;
   bricks = generateBricks(ctx, level);
-  canvasElement.style.cursor = 'none';
+  canvasElement.style.cursor = "none";
 
   render();
 }
