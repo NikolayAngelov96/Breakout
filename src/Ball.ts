@@ -67,11 +67,18 @@ export class Ball {
     for (let i = 0; i < bricks.length; i++) {
       const brick = bricks[i];
       if (
-        this.x > brick.x &&
-        this.x < brick.x + brick.width &&
-        this.y + this.radius > brick.y &&
-        this.y - this.radius < brick.y + brick.height
+        this.x + this.radius > brick.x &&
+        this.x - this.radius / 2 < brick.x + brick.width &&
+        this.y + this.radius * 2 > brick.y &&
+        this.y - this.radius / 2 < brick.y + brick.height
       ) {
+        if (        
+          this.y  > brick.y + this.vel.y
+          && this.y < brick.y + brick.height + this.vel.y 
+        ) {
+            this.vel.x = -this.vel.x;
+          }
+
         return i;
       }
     }

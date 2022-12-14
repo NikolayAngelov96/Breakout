@@ -18,9 +18,9 @@ export const HEIGHT = canvasElement.height;
 export const WIDTH = canvasElement.width;
 
 let x = WIDTH / 2;
-let y = HEIGHT - 30;
+let y = HEIGHT - 40;
 
-const speed = 2;
+const speed = 3;
 const vel = {
   x: speed,
   y: speed * 1.5,
@@ -40,7 +40,7 @@ document.addEventListener("mousemove", mouseMoveHandler);
 document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
 
-render(0);
+render(performance.now());
 
 function render(time = 0) {
   delta += time - lastTime;
