@@ -7,8 +7,6 @@ import { Scoreboard } from "./Scoreboard";
 const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 const ctx = canvasElement.getContext("2d");
 
-canvasElement.style.cursor = "none";
-
 let alive = true;
 let level = 1;
 let rightPressed = false;
@@ -37,7 +35,28 @@ document.addEventListener("mousemove", mouseMoveHandler);
 document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
 
-render();
+canvas.startScreen();
+
+canvasElement.addEventListener("click", onGameStart);
+
+function onGameStart(e: MouseEvent) {
+  const buttonX = WIDTH / 2 - 65;
+  const buttonY = HEIGHT / 2 - 15;
+  if (
+    canvas.isClickedInsideButton(
+      e.offsetX,
+      e.offsetY,
+      buttonX,
+      buttonY,
+      130,
+      30
+    )
+  ) {
+    canvasElement.style.cursor = "none";
+    render();
+    canvasElement.removeEventListener("click", onGameStart);
+  }
+}
 
 function render() {
   canvas.clear();
@@ -73,10 +92,10 @@ function render() {
         setTimeout(() => {
           alive = true;
           scoreboard.score = 0;
-          ball = new Ball(ctx, x, y, {x: speed, y: speed * 1.5});
+          ball = new Ball(ctx, x, y, { x: speed, y: speed * 1.5 });
           paddle.x = (WIDTH - paddle.width) / 2;
           bricks = generateBricks(ctx, level);
-          
+
           render();
         }, 3000);
       } else {
@@ -92,14 +111,15 @@ function render() {
         alive = false;
 
         canvasElement.addEventListener("click", (e) => {
-          const positions = {
-            x: e.offsetX,
-            y: e.offsetY,
-          };
-
           if (
-            positions.x >= WIDTH / 2 - 100 && positions.x < WIDTH / 2 - 100 + 200 &&
-            positions.y >= HEIGHT / 2 + 50 && positions.y < HEIGHT / 2 + 50 + 50
+            canvas.isClickedInsideButton(
+              e.offsetX,
+              e.offsetY,
+              WIDTH / 2 - 100,
+              HEIGHT / 2 + 50,
+              200,
+              50
+            )
           ) {
             restartGame();
           }
@@ -127,10 +147,7 @@ function render() {
 export function mouseMoveHandler(e: MouseEvent) {
   const relativeX = e.clientX - canvasElement.offsetLeft;
 
-  if (
-    relativeX > paddle.width / 2 &&
-    relativeX < WIDTH - paddle.width / 2
-  ) {
+  if (relativeX > paddle.width / 2 && relativeX < WIDTH - paddle.width / 2) {
     paddle.x = relativeX - paddle.width / 2;
   }
 }
@@ -155,10 +172,10 @@ function restartGame() {
   alive = true;
   scoreboard.lives = 3;
   scoreboard.score = 0;
-  ball = new Ball(ctx, x, y, {x: speed, y: speed * 1.5});
+  ball = new Ball(ctx, x, y, { x: speed, y: speed * 1.5 });
   paddle.x = (WIDTH - paddle.width) / 2;
   bricks = generateBricks(ctx, level);
-  canvasElement.style.cursor = 'none';
+  canvasElement.style.cursor = "none";
 
   render();
 }
