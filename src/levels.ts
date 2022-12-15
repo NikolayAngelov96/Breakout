@@ -72,5 +72,13 @@ export function generateBricks(ctx: CanvasRenderingContext2D, level: number, ima
     }
   }
 
+  let bonusCount = level + 1;
+  let bricksCount = bricks.length;
+
+  for (let i = 1; i <= bonusCount; i++) {
+    let random = Math.floor(Math.random() * bricksCount);
+    bricks[random].bonusDrop = true;
+  }
+
   return bricks;
 }
