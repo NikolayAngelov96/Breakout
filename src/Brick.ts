@@ -8,7 +8,8 @@ export class Brick {
     public y: number,
     public width: number,
     public height: number,
-    public density: number
+    public density: number,
+    public bonusDrop: boolean = false,
   ) {
     this.isHitted = false;
   }

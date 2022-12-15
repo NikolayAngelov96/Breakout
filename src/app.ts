@@ -1,4 +1,5 @@
 import { Ball } from "./Ball";
+import { Bonus } from "./Bonus";
 import { Canvas } from "./Canvas";
 import { generateBricks, levelScore } from "./levels";
 import { Paddle } from "./Paddle";
@@ -23,22 +24,21 @@ let y = HEIGHT - 40;
 const speed = 3;
 const vel = {
   x: speed,
-  y: speed * 1.5,
+  y: -speed * 1.5,
 };
 
 const canvas = new Canvas(canvasElement);
-let ball = new Ball(ctx, x, y, vel);
-let paddle;
 const scoreboard = new Scoreboard(ctx, { score: 0, lives: 3 });
+let ball = new Ball(ctx, x, y, vel);
 
+
+let paddle;
 let bricks;
+let bonus;
+let thereIsBonus = false;
 
 let lastTime = 0;
 let delta = 0;
-
-document.addEventListener("mousemove", mouseMoveHandler);
-document.addEventListener("keydown", keyDownHandler);
-document.addEventListener("keyup", keyUpHandler);
 
 const image = new Image();
 image.src = "../assets/breakout_pieces_1.png";
@@ -46,8 +46,15 @@ image.src = "../assets/breakout_pieces_1.png";
 image.addEventListener("load", () => {
   paddle = new Paddle(ctx, image, (WIDTH - 150) / 2);
   bricks = generateBricks(ctx, level, image);
+
+  document.addEventListener("mousemove", mouseMoveHandler);
+  document.addEventListener("keydown", keyDownHandler);
+  document.addEventListener("keyup", keyUpHandler);
+
   render(performance.now());
 });
+
+
 
 function render(time = 0) {
   delta += time - lastTime;
@@ -74,7 +81,11 @@ function render(time = 0) {
   const indexOfBrick = ball.indexOfCollidedBrick(bricks);
 
   if (indexOfBrick != -1) {
-    ball.collide(bricks[indexOfBrick]);
+    const isBonus = ball.collide(bricks[indexOfBrick]);
+    
+    if (isBonus) {
+      thereIsBonus = true;
+    }
 
     scoreboard.incrementScore();
 
@@ -87,8 +98,9 @@ function render(time = 0) {
           alive = true;
           scoreboard.score = 0;
           ball = new Ball(ctx, x, y, { x: speed, y: speed * 1.5 });
-          paddle.x = (WIDTH - paddle.width) / 2;
+          paddle = new Paddle(ctx, image, (WIDTH - 150) / 2);
           bricks = generateBricks(ctx, level, image);
+          thereIsBonus = false;
 
           render(0);
         }, 3000);
@@ -106,8 +118,8 @@ function render(time = 0) {
 
         canvasElement.addEventListener("click", handleGameRestartClick);
       } else {
-        ball = new Ball(ctx, x, y, vel);
-        paddle.x = (WIDTH - paddle.width) / 2;
+        ball = new Ball(ctx, x, y, {x: -vel.x, y: -vel.y});
+        paddle = new Paddle(ctx, image, (WIDTH - 150) / 2);
       }
     }
   }
@@ -116,6 +128,22 @@ function render(time = 0) {
     paddle.x = Math.min(paddle.x + 5, WIDTH - paddle.width);
   } else if (leftPressed) {
     paddle.x = Math.max(paddle.x - 5, 0);
+  }
+
+  if (thereIsBonus) {
+    if (!bonus) {
+      bonus = new Bonus(ctx, ball.x, ball.y);
+    }
+    bonus.draw();
+
+    if (bonus.hasCollidedWithPaddle(paddle)) {
+      thereIsBonus = false;
+      paddle.width += 20;
+      bonus = undefined;
+    } else if (bonus.hasCollidedWithBottom()) {
+      thereIsBonus = false;
+      bonus = undefined;
+    }
   }
 
   scoreboard.showStats();

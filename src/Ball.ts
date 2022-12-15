@@ -60,6 +60,10 @@ export class Ball {
       if (Math.abs(this.vel.x) < 10) {
         this.vel.x = this.vel.x * 1.05;
       }
+
+      if (gameObject.bonusDrop) {
+        return true;
+      }
     }
   }
 
