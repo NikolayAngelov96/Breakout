@@ -42,4 +42,38 @@ export class Canvas {
         this.ctx.textBaseline = "middle";
         this.ctx.fillText("YOU WIN", this.canvas.width / 2, this.canvas.height / 2);
     }
+
+    startScreen() {
+        const textPositionX = this.canvas.width / 2;
+        const textPositionY = this.canvas.height / 2;
+        this.clear();
+    
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.font = "36px sans-serif";
+        this.ctx.fillStyle = "white";
+        this.ctx.fillText("BREAKOUT", textPositionX, textPositionY - 150);
+        this.ctx.font = "24px Arial";
+        this.ctx.fillStyle = "black";
+        this.ctx.fillRect(textPositionX - 65, textPositionY - 15, 130, 30);
+        this.ctx.fillStyle = "white";
+        this.ctx.fillText("Start Game", textPositionX, textPositionY);
+        // this.ctx.fillText("Settings", textPositionX, textPositionY + 80);
+    }
+    
+    isClickedInsideButton(
+    clientX: number,
+    clientY: number,
+    buttonX: number,
+    buttonY: number,
+    width: number,
+    height: number
+    ) {
+        return (
+            clientX >= buttonX &&
+            clientX < buttonX + width &&
+            clientY >= buttonY &&
+            clientY < buttonY + height
+        );
+    }
 }

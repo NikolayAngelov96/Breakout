@@ -8,8 +8,6 @@ import { Scoreboard } from "./Scoreboard";
 const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 const ctx = canvasElement.getContext("2d");
 
-canvasElement.style.cursor = "none";
-
 let alive = true;
 let level = 1;
 let rightPressed = false;
@@ -31,7 +29,6 @@ const canvas = new Canvas(canvasElement);
 const scoreboard = new Scoreboard(ctx, { score: 0, lives: 3 });
 let ball = new Ball(ctx, x, y, vel);
 
-
 let paddle;
 let bricks;
 let bonus;
@@ -50,11 +47,21 @@ image.addEventListener("load", () => {
   document.addEventListener("mousemove", mouseMoveHandler);
   document.addEventListener("keydown", keyDownHandler);
   document.addEventListener("keyup", keyUpHandler);
-
-  render(performance.now());
 });
 
+canvas.startScreen();
 
+canvasElement.addEventListener("click", onGameStart);
+
+function onGameStart(e: MouseEvent) {
+  const buttonX = WIDTH / 2 - 65;
+  const buttonY = HEIGHT / 2 - 15;
+  if (canvas.isClickedInsideButton(e.offsetX, e.offsetY, buttonX, buttonY, 130, 30)) {
+    canvasElement.style.cursor = "none";
+    canvasElement.removeEventListener("click", onGameStart);
+    render(performance.now());
+  }
+}
 
 function render(time = 0) {
   delta += time - lastTime;
@@ -207,6 +214,7 @@ function restartGame() {
   paddle.x = (WIDTH - paddle.width) / 2;
   bricks = generateBricks(ctx, level, image);
   canvasElement.style.cursor = "none";
+  thereIsBonus = false;
 
   render(0);
 }
