@@ -6,6 +6,7 @@ export class Paddle {
 
   constructor(
     private ctx: CanvasRenderingContext2D,
+    private img: CanvasImageSource,
     x?: number,
     y?: number,
     public width: number = 150,
@@ -25,15 +26,8 @@ export class Paddle {
 
   draw() {
     this.ctx.beginPath();
-    this.ctx.rect(this.x, this.y - 10, this.width, this.height);
-    this.ctx.fillStyle = "red";
-    this.ctx.fill();
-    this.ctx.closePath();
+    this.ctx.drawImage(this.img, 8, 150,65, 25, this.x, this.y - 15, this.width, this.height + 15);
 
-    this.ctx.beginPath();
-    this.ctx.rect(this.x + 20, this.y - 10, this.width - 41, this.height);
-    this.ctx.fillStyle = "white";
-    this.ctx.fill();
     this.ctx.closePath();
   }
 

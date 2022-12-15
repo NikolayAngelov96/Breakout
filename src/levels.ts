@@ -36,7 +36,7 @@ export const levelScore = {
   3: 115,
 };
 
-export function generateBricks(ctx: CanvasRenderingContext2D, level: number) {
+export function generateBricks(ctx: CanvasRenderingContext2D, level: number, image: CanvasImageSource) {
   let bricks: Brick[] = [];
 
   const brickWidth = levels[level].brickWidth;
@@ -51,20 +51,20 @@ export function generateBricks(ctx: CanvasRenderingContext2D, level: number) {
       let brickX = col * (brickWidth + brickPadding) + brickOffsetLeft;
       let brickY = row * (brickHeight + brickPadding) + brickOffsetTop;
       if (row == 0) {
-        bricks.push(new Brick(ctx, brickX, brickY, brickWidth, brickHeight, 3));
+        bricks.push(new Brick(ctx, image, brickX, brickY, brickWidth, brickHeight, 3));
       } else if (row == 1) {
-        bricks.push(new Brick(ctx, brickX, brickY, brickWidth, brickHeight, 2));
+        bricks.push(new Brick(ctx, image, brickX, brickY, brickWidth, brickHeight, 2));
       } else if (row == 2) {
-        bricks.push(new Brick(ctx, brickX, brickY, brickWidth, brickHeight, 1));
+        bricks.push(new Brick(ctx, image, brickX, brickY, brickWidth, brickHeight, 1));
       } else if (row == 3) {
         if (col % 2 == 0) {
           bricks.push(
-            new Brick(ctx, brickX, brickY, brickWidth, brickHeight, 4)
+            new Brick(ctx, image, brickX, brickY, brickWidth, brickHeight, 4)
           );
         } else {
           if (level == 3) {
             bricks.push(
-              new Brick(ctx, brickX, brickY, brickWidth, brickHeight, 5)
+              new Brick(ctx, image, brickX, brickY, brickWidth, brickHeight, 5)
             );
           }
         }

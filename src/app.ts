@@ -28,10 +28,10 @@ const vel = {
 
 const canvas = new Canvas(canvasElement);
 let ball = new Ball(ctx, x, y, vel);
-const paddle = new Paddle(ctx, (WIDTH - 150) / 2);
+let paddle;
 const scoreboard = new Scoreboard(ctx, { score: 0, lives: 3 });
 
-let bricks = generateBricks(ctx, level);
+let bricks;
 
 let lastTime = 0;
 let delta = 0;
@@ -40,12 +40,19 @@ document.addEventListener("mousemove", mouseMoveHandler);
 document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
 
-render(performance.now());
+const image = new Image();
+image.src = "../assets/breakout_pieces_1.png";
+
+image.addEventListener("load", () => {
+  paddle = new Paddle(ctx, image, (WIDTH - 150) / 2);
+  bricks = generateBricks(ctx, level, image);
+  render(performance.now());
+});
 
 function render(time = 0) {
   delta += time - lastTime;
   lastTime = time;
-  
+
   canvas.clear();
   ball.draw();
   paddle.draw();
@@ -65,55 +72,55 @@ function render(time = 0) {
   }
 
   const indexOfBrick = ball.indexOfCollidedBrick(bricks);
-  
-    if (indexOfBrick != -1) {
-      ball.collide(bricks[indexOfBrick]);
-  
-      scoreboard.incrementScore();
-  
-      if (scoreboard.score === levelScore[level]) {
-        alive = false;
-        canvas.nextLevelScreen();
-        level++;
-        if (level < 4) {
-          setTimeout(() => {
-            alive = true;
-            scoreboard.score = 0;
-            ball = new Ball(ctx, x, y, { x: speed, y: speed * 1.5 });
-            paddle.x = (WIDTH - paddle.width) / 2;
-            bricks = generateBricks(ctx, level);
-  
-            render(0);
-          }, 3000);
-        } else {
-          canvas.showWinScreen();
-        }
-      }
-    } else {
-      if (ball.y + vel.y > HEIGHT - ball.radius) {
-        scoreboard.loseLife();
-        if (!scoreboard.lives) {
-          canvas.gameOverScreen();
-          canvasElement.style.cursor = "default";
-          alive = false;
-  
-          canvasElement.addEventListener("click", handleGameRestartClick);
-        } else {
-          ball = new Ball(ctx, x, y, vel);
+
+  if (indexOfBrick != -1) {
+    ball.collide(bricks[indexOfBrick]);
+
+    scoreboard.incrementScore();
+
+    if (scoreboard.score === levelScore[level]) {
+      alive = false;
+      canvas.nextLevelScreen();
+      level++;
+      if (level < 4) {
+        setTimeout(() => {
+          alive = true;
+          scoreboard.score = 0;
+          ball = new Ball(ctx, x, y, { x: speed, y: speed * 1.5 });
           paddle.x = (WIDTH - paddle.width) / 2;
-        }
+          bricks = generateBricks(ctx, level, image);
+
+          render(0);
+        }, 3000);
+      } else {
+        canvas.showWinScreen();
       }
     }
+  } else {
+    if (ball.y + vel.y > HEIGHT - ball.radius) {
+      scoreboard.loseLife();
+      if (!scoreboard.lives) {
+        canvas.gameOverScreen();
+        canvasElement.style.cursor = "default";
+        alive = false;
+
+        canvasElement.addEventListener("click", handleGameRestartClick);
+      } else {
+        ball = new Ball(ctx, x, y, vel);
+        paddle.x = (WIDTH - paddle.width) / 2;
+      }
+    }
+  }
 
   if (rightPressed) {
     paddle.x = Math.min(paddle.x + 5, WIDTH - paddle.width);
   } else if (leftPressed) {
     paddle.x = Math.max(paddle.x - 5, 0);
   }
-  
+
   scoreboard.showStats();
   bricks = bricks.filter((x) => x.isHitted == false);
-  
+
   for (const brick of bricks) {
     brick.draw();
   }
@@ -170,7 +177,7 @@ function restartGame() {
   scoreboard.score = 0;
   ball = new Ball(ctx, x, y, { x: speed, y: speed * 1.5 });
   paddle.x = (WIDTH - paddle.width) / 2;
-  bricks = generateBricks(ctx, level);
+  bricks = generateBricks(ctx, level, image);
   canvasElement.style.cursor = "none";
 
   render(0);
