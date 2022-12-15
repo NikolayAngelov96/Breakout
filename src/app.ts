@@ -210,6 +210,7 @@ function restartGame() {
   alive = true;
   scoreboard.lives = 3;
   scoreboard.score = 0;
+  level = 1;
   ball = new Ball(ctx, x, y, { x: speed, y: speed * 1.5 });
   paddle.x = (WIDTH - paddle.width) / 2;
   bricks = generateBricks(ctx, level, image);
