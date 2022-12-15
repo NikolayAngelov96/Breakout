@@ -70,7 +70,7 @@ export class Ball {
         this.x + this.radius > brick.x &&
         this.x - this.radius / 2 < brick.x + brick.width &&
         this.y + this.radius * 2 > brick.y &&
-        this.y - this.radius / 2 < brick.y + brick.height
+        this.y - this.radius / 2 < brick.y + brick.height + 15
       ) {
         if (this.isSideColiding(brick)) {
             this.vel.x = -this.vel.x;
